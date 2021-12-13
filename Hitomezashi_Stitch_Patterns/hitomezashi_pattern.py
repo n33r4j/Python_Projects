@@ -4,7 +4,10 @@
 import pygame
 import random
 
-WIDTH, HEIGHT = 640, 640
+CELL_SIZE = 10
+WIDTH, HEIGHT = 1024, 576
+offsetX, offsetY = 5, 5
+P_WIDTH, P_HEIGHT = (WIDTH//CELL_SIZE), (HEIGHT//CELL_SIZE)
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Hitmezashi Stitch Patterns")
 
@@ -20,10 +23,12 @@ YELLOW = (255,255,5)
 D_BLUE = (5, 5, 80)
 BLUE = (5,5,255)
 GREEN = (5,200,5)
+L_GREEN = (126,222,9)
+GREY = (52,54,50)
+D_GREY = (37,38,36)
 RED = (200,5,5)
 
-offsetX = 20
-offsetY = 20
+
 
 
 def getRandomBinaryNum(size):
@@ -41,38 +46,41 @@ def createDotGrid(width, height, cell_size):
             pygame.draw.circle(WIN, RED, (offsetX + (j*cell_size),offsetY + (i*cell_size)), 2.0)
 
 
-def createPattern(num1, num2, color=BLUE, showGrid=False):
-    WIN.fill(BLACK)
-    height = 50
-    width = 50
-    cell_size = 12
+def createPattern(num1, num2, color=BLUE, thickness = 4, shift=1, bg_color=BLACK, showGrid=False):
+    WIN.fill(bg_color)
     
     if showGrid:
-        createDotGrid(width, height, cell_size)
+        createDotGrid(P_WIDTH, P_HEIGHT, CELL_SIZE)
     
+    # Horizontal
     for i, char in enumerate(num1):
         if int(char):
-            for j in range(0, width-1, 2):
-                start = (offsetX + (j*cell_size), offsetY + (i*cell_size))
-                end = (offsetX + ((j+1)*cell_size), offsetY + (i*cell_size))
-                pygame.draw.aaline(WIN, color, start, end, 4)
+            for j in range(0, P_WIDTH - 1, 2):
+                start = (offsetX + (j*CELL_SIZE), offsetY + (i*CELL_SIZE))
+                end = (offsetX + ((j+1)*CELL_SIZE), offsetY + (i*CELL_SIZE))
+                # pygame.draw.aaline(WIN, color, start, end, thickness)
+                pygame.draw.line(WIN, color, start, end, thickness)
         else:
-            for j in range(1, width-1, 2):
-                start = (offsetX + (j*cell_size), offsetY + (i*cell_size))
-                end = (offsetX + ((j+1)*cell_size), offsetY + (i*cell_size))
-                pygame.draw.aaline(WIN, color, start, end, 4)
+            for j in range(shift, P_WIDTH - 1, 2):
+                start = (offsetX + (j*CELL_SIZE), offsetY + (i*CELL_SIZE))
+                end = (offsetX + ((j+1)*CELL_SIZE), offsetY + (i*CELL_SIZE))
+                # pygame.draw.aaline(WIN, color, start, end, thickness)
+                pygame.draw.line(WIN, color, start, end, thickness)
     
+    # Vertical
     for i, char in enumerate(num2):
         if int(char):
-            for j in range(0, height-1, 2):
-                start = (offsetX + (i*cell_size), offsetY + (j*cell_size))
-                end = (offsetX + (i*cell_size), offsetY + ((j+1)*cell_size))
-                pygame.draw.aaline(WIN, color, start, end, 4)
+            for j in range(0, P_HEIGHT - 1, 2):
+                start = (offsetX + (i*CELL_SIZE), offsetY + (j*CELL_SIZE))
+                end = (offsetX + (i*CELL_SIZE), offsetY + ((j+1)*CELL_SIZE))
+                # pygame.draw.aaline(WIN, color, start, end, thickness)
+                pygame.draw.line(WIN, color, start, end, thickness)
         else:
-            for j in range(1, height-1, 2):
-                start = (offsetX + (i*cell_size), offsetY + (j*cell_size))
-                end = (offsetX + (i*cell_size), offsetY + ((j+1)*cell_size))
-                pygame.draw.aaline(WIN, color, start, end, 4)
+            for j in range(shift, P_HEIGHT - 1, 2):
+                start = (offsetX + (i*CELL_SIZE), offsetY + (j*CELL_SIZE))
+                end = (offsetX + (i*CELL_SIZE), offsetY + ((j+1)*CELL_SIZE))
+                # pygame.draw.aaline(WIN, color, start, end, thickness)
+                pygame.draw.line(WIN, color, start, end, thickness)
     
     pygame.display.update()
     
@@ -81,21 +89,34 @@ def main():
     pygame.init()
     
     global SIM_RUN
-    num1 = getRandomBinaryNum(50)
-    num2 = getRandomBinaryNum(50)
+    num1 = getRandomBinaryNum(P_HEIGHT)
+    num2 = getRandomBinaryNum(P_WIDTH)
     
     print(f'num1: {num1}')
     print(f'num2: {num2}')
+    
+    PatternCreated = False
     
     clock = pygame.time.Clock()
     
     while SIM_RUN:
         clock.tick(FPS_MAX)
+        
+        if not PatternCreated:
+            createPattern(num1, num2, L_GREEN, thickness=2, shift=1, bg_color=D_GREY)
+            PatternCreated = True
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 SIM_RUN = False
-                
-        createPattern(num1, num2, GREEN)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_s:
+                    filename = input("Type \"c\" to go back \n or Save file as(filename + .png/.jpg): ")
+                    if filename.lower() != "c":
+                        pygame.image.save(WIN, filename)
+                        print("Image Saved")
+                    else:
+                        print("Saving cancelled...")
     
     pygame.quit()
     print("Simulation Terminated...")
