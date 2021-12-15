@@ -3,6 +3,7 @@
 
 import pygame
 import random
+import pathlib, os
 
 CELL_SIZE = 10
 WIDTH, HEIGHT = 1024, 576
@@ -29,6 +30,7 @@ D_GREY = (37,38,36)
 RED = (200,5,5)
 
 
+PREFIX = pathlib.Path(__file__).parent.resolve()
 
 
 def getRandomBinaryNum(size):
@@ -113,7 +115,9 @@ def main():
                 if event.key == pygame.K_s:
                     filename = input("Type \"c\" to go back \n or Save file as(filename + .png/.jpg): ")
                     if filename.lower() != "c":
-                        pygame.image.save(WIN, filename)
+                        path = os.path.join(PREFIX, filename)
+                        # print(path)
+                        pygame.image.save(WIN, path)
                         print("Image Saved")
                     else:
                         print("Saving cancelled...")
