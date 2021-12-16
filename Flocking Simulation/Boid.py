@@ -4,7 +4,7 @@ import pygame
 import math
 
 class Boid:
-    def __init__(self, sNum, sprite, pos, angle, color):
+    def __init__(self, sNum, sprite, pos, angle, color, wrapScreen=False):
         self.pos = pos
         # self.pos = pygame.math.Vector2(x, y)
         self.vel = [0.0, 0.0]
@@ -16,7 +16,12 @@ class Boid:
         self.sNum = sNum        # serial number
         self.sprite = sprite
         self.rect = self.sprite.get_rect()
+        self.wrap = wrapScreen
         # self.rect = pygame.Rect(self.pos[0], self.pos[1], 1, 1)
+        
+        self.posGoalSet = False
+        self.posGoal = [0,0]
+        self.maxVel = 3.0
     
     def setPos(self, pos):
         self.pos = pos
@@ -32,6 +37,10 @@ class Boid:
     def setAngle(self, angle):
         self.angle = angle
     
+    def setPosGoal(self, posGoal):
+        self.posGoal = posGoal
+        self.posGoalSet = True
+    
     def rotate(self, surface, angle):
         rotated_sprite = pygame.transform.rotozoom(surface, angle, 1) # scale = 1
         rotated_rect = rotated_sprite.get_rect(center = (self.pos[0],self.pos[1]))
@@ -44,10 +53,25 @@ class Boid:
         self.ang_accel = ang_accel
     
     def Update(self):
-        self.vel[0] += self.accel[0]
-        self.vel[1] += self.accel[1]
+        if self.posGoalSet:
+            x = self.posGoal[0] - self.pos[0]
+            y = self.posGoal[1] - self.pos[1]
+            norm = ((x*x)+(y*y))**0.5
+            self.vel[0] = float(x)/norm * self.maxVel
+            self.vel[1] = float(y)/norm * self.maxVel
+            
+        else:
+            self.vel[0] += self.accel[0]
+            self.vel[1] += self.accel[1]
+        
         self.pos[0] += self.vel[0]
         self.pos[1] += self.vel[1]
+        
+        # Wrap around
+        if self.wrap:
+            self.pos[0] %= 1200
+            self.pos[1] %= 800
+        
         self.rect.x = self.pos[0]
         self.rect.y = self.pos[1]
         

@@ -19,8 +19,8 @@ SIM_PAUSED = False
 PREFIX = pathlib.Path(__file__).parent.resolve()
 
 # Sprite
-BOID_IMAGE = pygame.image.load(os.path.join(PREFIX,"assets","boid_v1.png"))
-BOID_SIZE = 20
+BOID_IMAGE = pygame.image.load(os.path.join(PREFIX,"assets","boid_green.png"))
+BOID_SIZE = 24.0
 BOID_SPRITE = pygame.transform.scale(BOID_IMAGE, (BOID_SIZE, BOID_SIZE))
 
 # Draw stuff on the main window
@@ -41,6 +41,7 @@ def Handle_Input(event):
         
     if event.key == pygame.K_q:
         SIM_RUN = False
+        
 
 
 def main():
@@ -54,8 +55,9 @@ def main():
     # b1.setVel([-1.0,0.0])
     # b1.setVel([random.uniform(-1.0, 1.0),random.uniform(-1.0, 1.0)])
     
-    flock = Flock(30, BOID_SPRITE,[WIDTH/2, HEIGHT/2])
+    flock = Flock(10, BOID_SPRITE,[WIDTH/2, HEIGHT/2])
     flock.setVel([random.uniform(-1.0, 1.0),random.uniform(-1.0, 1.0)])
+    # flock.setPosGoal([1000,100])
     
     while SIM_RUN:
         clock.tick(MAX_FPS)
@@ -66,7 +68,11 @@ def main():
             
             if event.type == pygame.KEYDOWN:
                 Handle_Input(event)
-                
+            
+            if event.type == pygame.MOUSEBUTTONUP:
+                mousePos = pygame.mouse.get_pos()
+                flock.setPosGoal(mousePos)
+            
         if not SIM_PAUSED:
             # b1.Update()
             # Draw_Window(b1)
