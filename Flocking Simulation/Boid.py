@@ -1,10 +1,11 @@
 # Boid Class
 
+
 import pygame
 import math
 
 class Boid:
-    def __init__(self, sNum, sprite, pos, angle, color, wrapScreen=False):
+    def __init__(self, sNum, sprite, pos, angle, color, showVRadius = False, wrapScreen=False):
         self.pos = pos
         # self.pos = pygame.math.Vector2(x, y)
         self.vel = [0.0, 0.0]
@@ -17,11 +18,14 @@ class Boid:
         self.sprite = sprite
         self.rect = self.sprite.get_rect()
         self.wrap = wrapScreen
-        # self.rect = pygame.Rect(self.pos[0], self.pos[1], 1, 1)
         
         self.posGoalSet = False
         self.posGoal = [0,0]
-        self.maxVel = 3.0
+        self.maxVel = 0.2
+        self.maxAccel = 0.05
+        
+        self.visibleRadius = 60.0
+        self.showVRadius = showVRadius
     
     def setPos(self, pos):
         self.pos = pos
@@ -52,20 +56,30 @@ class Boid:
     def setAng_Accel(self, ang_accel):
         self.ang_accel = ang_accel
     
-    def Update(self):
+    def setVisibleRadius(self, radius):
+        self.visibleRadius = radius
+    
+    def Update(self, dt):
         if self.posGoalSet:
             x = self.posGoal[0] - self.pos[0]
             y = self.posGoal[1] - self.pos[1]
             norm = ((x*x)+(y*y))**0.5
-            self.vel[0] = float(x)/norm * self.maxVel
-            self.vel[1] = float(y)/norm * self.maxVel
+            self.accel[0] = float(x)/norm * self.maxVel
+            self.accel[1] = float(y)/norm * self.maxVel
+            # if x == 0 and y == 0:
+                # self.posGoalSet = False
+                # self.accel = [0,0]
             
-        else:
-            self.vel[0] += self.accel[0]
-            self.vel[1] += self.accel[1]
+        self.vel[0] += self.accel[0]
+        self.vel[1] += self.accel[1]
         
-        self.pos[0] += self.vel[0]
-        self.pos[1] += self.vel[1]
+        if abs(self.vel[0]) > self.maxVel:
+            self.vel[0] = (self.vel[0]/abs(self.vel[0]))*self.maxVel
+        if abs(self.vel[1]) < self.maxVel:
+            self.vel[1] = (self.vel[1]/abs(self.vel[1]))*self.maxVel
+            
+        self.pos[0] += (self.vel[0]*dt)
+        self.pos[1] += (self.vel[1]*dt)
         
         # Wrap around
         if self.wrap:
@@ -79,6 +93,12 @@ class Boid:
         self.angle = -90.0 + new_angle
     
     def Draw(self, window):
+        if self.showVRadius:
+            wSize = window.get_size()
+            surface = pygame.Surface(wSize, pygame.SRCALPHA)
+            pygame.draw.circle(surface, (100,100,100,50),self.pos, self.visibleRadius)
+            window.blit(surface, surface.get_rect())
+        
         rotated_sprite, rotated_rect = self.rotate(self.sprite, self.angle)
         window.blit(rotated_sprite, rotated_rect)
     

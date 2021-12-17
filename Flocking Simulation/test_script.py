@@ -23,15 +23,26 @@ boid_rect = boid_image.get_rect(center=(300,300))
 
 angle = 0
 
+FPSs = [10, 30, 60, 90, 120]
+fps_ind = 1
+
 while True:
+    dt = clock.tick(FPSs[fps_ind])
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-            
-    angle += 0.5
+        
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_f:
+                fps_ind += 1
+                fps_ind %= 5
+                print("FPS is", FPSs[fps_ind])
+        
+    angle += 0.5*dt
     screen.fill((0,0,0))
-    
+    # print(pygame.time.get_ticks())
     boid_image_rotated, boid_rect = rotate(boid_image, angle)
     
     # boid_image = pygame.transform.rotozoom(boid_image, angle, 1)
@@ -49,6 +60,5 @@ while True:
    
     screen.blit(boid_image_rotated, boid_rect)
     pygame.display.flip()
-    clock.tick(60)
     
     

@@ -54,13 +54,13 @@ def main():
     # b1 = Boid(1, BOID_SPRITE, [WIDTH/2.0, HEIGHT/2.0], 0.0, GREEN)
     # b1.setVel([-1.0,0.0])
     # b1.setVel([random.uniform(-1.0, 1.0),random.uniform(-1.0, 1.0)])
-    
-    flock = Flock(10, BOID_SPRITE,[WIDTH/2, HEIGHT/2])
-    flock.setVel([random.uniform(-1.0, 1.0),random.uniform(-1.0, 1.0)])
+    # print(WIN.get_size())
+    flock = Flock(20, BOID_SPRITE,[WIDTH/2, HEIGHT/2], showVRadius=True)
+    flock.setRandomVel()
     # flock.setPosGoal([1000,100])
     
     while SIM_RUN:
-        clock.tick(MAX_FPS)
+        dt = clock.tick(MAX_FPS)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -71,12 +71,13 @@ def main():
             
             if event.type == pygame.MOUSEBUTTONUP:
                 mousePos = pygame.mouse.get_pos()
-                flock.setPosGoal(mousePos)
+                # flock.setPosGoal(mousePos)
             
         if not SIM_PAUSED:
             # b1.Update()
             # Draw_Window(b1)
-            flock.Update()
+            flock.Update(dt)
+            flock.Align()
             Draw_Window(flock)
             
         
