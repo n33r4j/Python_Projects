@@ -21,10 +21,10 @@ class Boid:
         
         self.posGoalSet = False
         self.posGoal = [0,0]
-        self.maxVel = 0.2
-        self.maxAccel = 0.05
+        self.maxVel = 0.1
+        self.maxAccel = 0.02 # How quickly it can turn, 0.02 is good
         
-        self.visibleRadius = 60.0
+        self.visibleRadius = 60.0 # 60.0 is a good value.
         self.showVRadius = showVRadius
     
     def setPos(self, pos):
@@ -78,6 +78,9 @@ class Boid:
         if abs(self.vel[1]) < self.maxVel:
             self.vel[1] = (self.vel[1]/abs(self.vel[1]))*self.maxVel
             
+        self.accel[0] = 0.0
+        self.accel[1] = 0.0
+        
         self.pos[0] += (self.vel[0]*dt)
         self.pos[1] += (self.vel[1]*dt)
         

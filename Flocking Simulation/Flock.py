@@ -38,7 +38,7 @@ class Flock:
         self.posGoal = posGoal
         self.posGoalSet = True
         for boid in self.boids:
-            boid.setPosGoal(self.posGoal)
+            boid.setPosGoal(self.posGoal)    
     
     # This should be within the Boid class to be truly decentralized.
     def Align(self):
@@ -59,15 +59,39 @@ class Flock:
                 # ISSUE: If two boids are approaching more-or-less head on,
                 # they're not corrected since align merely checks that they're
                 # parallel.
-                boid.accel[0] = (velXSum/neigbhorsCount) - boid.vel[0]
-                boid.accel[1] = (velYSum/neigbhorsCount) - boid.vel[1]
+                boid.accel[0] += (velXSum/neigbhorsCount) - boid.vel[0]
+                boid.accel[1] += (velYSum/neigbhorsCount) - boid.vel[1]
                 
                 if abs(boid.accel[0]) > boid.maxAccel:
                     boid.accel[0] = (boid.accel[0]/abs(boid.accel[0]))*boid.maxAccel
                 if abs(boid.accel[1]) > boid.maxAccel:
                     boid.accel[1] = (boid.accel[1]/abs(boid.accel[1]))*boid.maxAccel
                 
-            
+                
+    def Cohesion(self):
+        for boid in self.boids:
+            posXSum = 0.0
+            posYSum = 0.0
+            neigbhorsCount = 0
+            for other_boid in self.boids:
+                if boid.sNum != other_boid.sNum:
+                    distX = boid.pos[0] - other_boid.pos[0]
+                    distY = boid.pos[1] - other_boid.pos[1]
+                    if (distX**2 + distY**2)**0.5 < boid.visibleRadius:
+                       # Relative position
+                       posXSum += (other_boid.pos[0] - boid.pos[0])
+                       posYSum += (other_boid.pos[1] - boid.pos[1])
+                       neigbhorsCount += 1
+            if neigbhorsCount > 0:
+                boid.accel[0] += (posXSum/neigbhorsCount) - boid.vel[0]
+                boid.accel[1] += (posYSum/neigbhorsCount) - boid.vel[1]
+                
+                if abs(boid.accel[0]) > boid.maxAccel:
+                    boid.accel[0] = (boid.accel[0]/abs(boid.accel[0]))*boid.maxAccel
+                if abs(boid.accel[1]) > boid.maxAccel:
+                    boid.accel[1] = (boid.accel[1]/abs(boid.accel[1]))*boid.maxAccel
+    
+    
     def Update(self, dt):
         for boid in self.boids:
             boid.Update(dt)

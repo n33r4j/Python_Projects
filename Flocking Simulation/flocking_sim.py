@@ -76,8 +76,9 @@ def main():
         if not SIM_PAUSED:
             # b1.Update()
             # Draw_Window(b1)
-            flock.Update(dt)
             flock.Align()
+            flock.Cohesion()
+            flock.Update(dt)
             Draw_Window(flock)
             
         
