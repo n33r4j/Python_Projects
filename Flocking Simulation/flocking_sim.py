@@ -6,6 +6,7 @@ import pathlib, os
 from Colors import *
 # from Boid import Boid
 from Flock import Flock
+from Video_Recorder import Video_Recorder
 import random
 
 WIDTH, HEIGHT = 1200, 800
@@ -22,6 +23,8 @@ PREFIX = pathlib.Path(__file__).parent.resolve()
 BOID_IMAGE = pygame.image.load(os.path.join(PREFIX,"assets","boid_green.png"))
 BOID_SIZE = 24.0
 BOID_SPRITE = pygame.transform.scale(BOID_IMAGE, (BOID_SIZE, BOID_SIZE))
+
+
 
 # Draw stuff on the main window
 def Draw_Window(flock):
@@ -55,12 +58,16 @@ def main():
     # b1.setVel([-1.0,0.0])
     # b1.setVel([random.uniform(-1.0, 1.0),random.uniform(-1.0, 1.0)])
     # print(WIN.get_size())
-    flock = Flock(20, BOID_SPRITE,[WIDTH/2, HEIGHT/2], showVRadius=True)
-    flock.setRandomVel()
+    flock = Flock(0, BOID_SPRITE,[WIDTH/2, HEIGHT/2], showVRadius=True)
+    # flock.setRandomVel()
     # flock.setPosGoal([1000,100])
+    # counter = 0
+    
+    v_rec = Video_Recorder(PREFIX)
     
     while SIM_RUN:
         dt = clock.tick(MAX_FPS)
+        # print(clock.get_fps())
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -70,20 +77,26 @@ def main():
                 Handle_Input(event)
             
             if event.type == pygame.MOUSEBUTTONUP:
-                mousePos = pygame.mouse.get_pos()
-                # flock.setPosGoal(mousePos)
+                mousePos = list(pygame.mouse.get_pos())
+                flock.createAddBoid(mousePos, WHITE)
+                # counter += 1
             
         if not SIM_PAUSED:
             # b1.Update()
             # Draw_Window(b1)
-            flock.Align()
-            flock.Cohesion()
+            flock.Align(2.0)
+            # flock.Cohesion(1.0)
+            flock.Separation(1.0)
             flock.Update(dt)
             Draw_Window(flock)
+            v_rec.CaptureFrame(WIN)
             
+            # Just using Align() seems to have the desired flocking behaviour. However,
+            # adding Cohesion() breaks up this flocking behaviour.
         
     pygame.quit()
     print("Terminating Simulation...")
+    v_rec.GenerateVideo(PREFIX) # Most recently captured file by default.
 
     
 if __name__ == "__main__":

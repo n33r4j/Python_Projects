@@ -1,0 +1,10 @@
+# Ignore video releases folder
+video_releases
+videos
+
+# Ignore video files, just in case something happens.
+*.mp4
+
+# Ignore pickle files
+*.pickle
+*.pkl
