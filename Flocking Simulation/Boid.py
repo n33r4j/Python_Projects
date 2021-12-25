@@ -100,7 +100,8 @@ class Boid:
         if self.showVRadius:
             wSize = window.get_size()
             surface = pygame.Surface(wSize, pygame.SRCALPHA)
-            pygame.draw.circle(surface, (100,100,100,50),self.pos, self.visibleRadius)
+            visionCircleColor = (100,100,100,50)
+            pygame.draw.circle(surface, visionCircleColor,self.pos, self.visibleRadius)
             window.blit(surface, surface.get_rect())
         
         rotated_sprite, rotated_rect = self.rotate(self.sprite, self.angle)

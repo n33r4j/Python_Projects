@@ -1,3 +1,12 @@
+# Virtual Environments - based on [https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment]
+# On Windows:
+# To Create a virtual environment: py -m venv [name of enironment or 'env' as default]
+# To Activate it: .\env\Scripts\activate
+# To Deactivate it: deactivate
+# To confirm you're using venv: where python
+# To generate a 'requirements.txt' file: pip install pipreqs
+#                                        pipreqs [path to the project, '.' if you are in the project directory]
+
 # Flocking Simulation
 # (https://www.youtube.com/watch?v=mhjuuHl6qHM&list=PLRqwX-V7Uu6ZiZxtDDRCi6uhfTH4FilpH&index=179)
 
@@ -16,6 +25,9 @@ pygame.display.set_caption("Flocking Simulation")
 MAX_FPS = 60
 SIM_RUN = True
 SIM_PAUSED = False
+
+# For recording the simulation window and generating an mp4 file.
+RECORD_VIDEO = False
 
 PREFIX = pathlib.Path(__file__).parent.resolve()
 
@@ -63,7 +75,8 @@ def main():
     # flock.setPosGoal([1000,100])
     # counter = 0
     
-    v_rec = Video_Recorder(PREFIX)
+    if RECORD_VIDEO:
+        v_rec = Video_Recorder(PREFIX)
     
     while SIM_RUN:
         dt = clock.tick(MAX_FPS)
@@ -84,19 +97,23 @@ def main():
         if not SIM_PAUSED:
             # b1.Update()
             # Draw_Window(b1)
-            flock.Align(2.0)
+            flock.Align(1.0)
             # flock.Cohesion(1.0)
-            flock.Separation(1.0)
+            # flock.Separation(1.0)
             flock.Update(dt)
             Draw_Window(flock)
-            v_rec.CaptureFrame(WIN)
+            
+            if RECORD_VIDEO:
+                v_rec.CaptureFrame(WIN)
             
             # Just using Align() seems to have the desired flocking behaviour. However,
             # adding Cohesion() breaks up this flocking behaviour.
         
     pygame.quit()
     print("Terminating Simulation...")
-    v_rec.GenerateVideo(PREFIX) # Most recently captured file by default.
+    
+    if RECORD_VIDEO:
+        v_rec.GenerateVideo(PREFIX) # Most recently captured file by default.
 
     
 if __name__ == "__main__":

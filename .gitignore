@@ -2,6 +2,12 @@
 video_releases
 videos
 
+# Ignore virtual env folders
+env
+
+# Ignore .pyc files
+# *.pyc
+
 # Ignore video files, just in case something happens.
 *.mp4
 
