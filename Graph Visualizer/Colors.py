@@ -1,0 +1,13 @@
+
+# Color definitions
+WHITE = (255,255,255)
+BLACK = (0, 0, 0)
+GREY = (156, 156, 156)
+L_GREY = (205, 205, 205)
+YELLOW = (255,255,5)
+ORANGE = (255,136,0)
+D_BLUE = (5, 5, 80)
+L_BLUE = (0,255,255)
+BLUE = (5,5,255)
+GREEN = (5,200,5)
+RED = (200,5,5)
