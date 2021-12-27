@@ -2,6 +2,10 @@
 #
 # Grassfire and A* implemented
 # Try PRM and RRT for non-grid based maps.
+#
+# Notes:
+# - There's probably a better way to write the code for searching neighbouring cells. Maybe using a dict ?
+# - 
 
 import pygame
 
@@ -126,7 +130,7 @@ def Grassfire(start, goal, grid):
     
     clock = pygame.time.Clock()
     global SIM_RUN
-    timer = 0
+    timer = 0 # Set the timer in ms to control the update speed.
     timer_start = 0
     goal_found = False
 
@@ -220,7 +224,7 @@ def Grassfire(start, goal, grid):
                     grid.setDistMatrix(dist_mat)
                     draw_window(grid)
 
-
+# Euclidean Distance -> Heuristic
 def Dist(start, goal):
     x1, y1 = start
     x2, y2 = goal
@@ -238,7 +242,7 @@ def AStar(start, goal, grid):
     
     clock = pygame.time.Clock()
     global SIM_RUN
-    timer = 50 # ms
+    timer = 50 # ms, for controlling update speed.
     timer_start = 0
     goal_found = False
 
@@ -257,7 +261,7 @@ def AStar(start, goal, grid):
             # print(currTime)
 
             if currTime - timer_start > timer:
-                print("step",currTime)
+                # print("step",currTime)
                 timer_start = currTime
 
                 if toVisit and not goal_found:

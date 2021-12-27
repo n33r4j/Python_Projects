@@ -1,5 +1,7 @@
 # Priority Queue Class for Dijkstra and A*
 # Current implementation is not efficient I think. Use a heap maybe ?
+# Technically, this is not a priority queue since cells with eqaul distances from the 
+# goal are picked in a random order. Or maybe not ?
 
 class PriorityQueue:
     def __init__(self):
