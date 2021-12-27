@@ -8,6 +8,7 @@ import pygame
 from Grid import Grid
 from Colors import *
 from PriorityQueue import PriorityQueue
+import random
 
 WIDTH, HEIGHT = 1000, 700
 window = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -22,7 +23,7 @@ SIM_PAUSED = False
 # GRID_HEIGHT = 12
 
 
-map_WIDTH, map_HEIGHT = 36, 36
+map_WIDTH, map_HEIGHT = 50, 50
 cell_SIZE = 16
 map = [[0 for i in range(map_WIDTH)] for j in range(map_HEIGHT)]
 dist_mat = [[0 for i in range(map_WIDTH)] for j in range(map_HEIGHT)]
@@ -36,17 +37,26 @@ def addWall(axis, rank, start, end):
         for i in range(start, end):
             map[i][rank] = -1
 
+# Create Random Walls, density ~ 0.0 - 1.0
+def addRandomWalls(density):
+    for i in range(map_HEIGHT):
+        for j in range(map_WIDTH):
+            num = random.random()
+            if num < density:
+                map[i][j] = -1
 
-addWall(0, 4, 0, 35)
-addWall(0, 8, 1, 36)
+# addWall(0, 4, 0, 35)
+# addWall(0, 8, 1, 36)
 # addWall(0, 12, 0, 35)
 # addWall(0, 16, 1, 36)
-addWall(0, 20, 0, 35)
+# addWall(0, 20, 0, 35)
 # addWall(0, 24, 1, 36)
 # addWall(0, 28, 0, 35)
 # addWall(0, 32, 1, 36)
-addWall(1, 30, 1, 15)
-addWall(1, 30, 27, 35)
+# addWall(1, 30, 1, 15)
+# addWall(1, 30, 27, 35)
+
+addRandomWalls(0.3)
 
 # Sets
 def TracePath(goal, map, dist_mat):
@@ -228,7 +238,7 @@ def AStar(start, goal, grid):
     
     clock = pygame.time.Clock()
     global SIM_RUN
-    timer = 1.0
+    timer = 50 # ms
     timer_start = 0
     goal_found = False
 
@@ -247,12 +257,16 @@ def AStar(start, goal, grid):
             # print(currTime)
 
             if currTime - timer_start > timer:
-                # print("step",currTime)
+                print("step",currTime)
                 timer_start = currTime
 
                 if toVisit and not goal_found:
                     # print(toVisit[0], goal)
-                    curr_cell = toVisit.get_removeMinCell()
+                    if not toVisit.isEmpty():
+                        curr_cell = toVisit.get_removeMinCell()
+                    else:
+                        print("Path not found...")
+                        break
                     # print(curr_cell)
                     if( curr_cell == goal):
                         # print("Goal found!")
@@ -330,6 +344,9 @@ def AStar(start, goal, grid):
                     grid.setStateMatrix(map)
                     grid.setDistMatrix(dist_mat)
                     draw_window(grid)
+                
+                elif not toVisit and not goal_found:
+                    print("Goal not found. Terminating Search...")
 
 
 def draw_window(grid):
@@ -352,29 +369,9 @@ def main():
     grid = Grid((10,10), map_WIDTH, map_HEIGHT, cell_SIZE)
     # grid.setState(map)
 
+    # Pathfinding Algorithms:
     # Grassfire((6,4),(33,33), grid)
-    AStar([6,4],[33,33], grid)
-
-    # for i in range(10):
-    #     grid.setCellState(i, 10, 2)
-    # graph_nodes = []
-    
-    # print("Starting Simulation...")
-    
-    # while SIM_RUN:
-    #     clock.tick(FPS_MAX)
-        
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             SIM_RUN = False
-    #         if event.type == pygame.MOUSEBUTTONDOWN:
-    #             mouse_pos = pygame.mouse.get_pos()
-                
-            
-    #     if not SIM_PAUSED:
-    #         currTime = pygame.time.get_ticks()
-            
-            # draw_window(grid)
+    AStar([38,2],[36,45], grid) # start and goal needs to be lists.
     
     pygame.quit()
     print("Simulation Terminated...")

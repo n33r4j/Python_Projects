@@ -5,6 +5,9 @@ class PriorityQueue:
     def __init__(self):
         self.queue = {}
 
+    def isEmpty(self):
+        return len(self.queue) == 0
+
     def addItem(self, key, val):
         self.queue[tuple(key)] = val
 
@@ -15,7 +18,7 @@ class PriorityQueue:
 
 
 if __name__ == "__main__":
-    d = {(1,1): 2.0}
+    d = {}
     # d[tuple([1,1])] = 4
     # d[tuple([2,1])] = 2
     # d[tuple([1,2])] = 5
@@ -25,10 +28,12 @@ if __name__ == "__main__":
 
     # print(d)
     
-    if d:
-        print("yes")
-    else:
-        print("no")
+    print(len(d) > 0)
+
+    # if d:
+    #     print("yes")
+    # else:
+    #     print("no")
 
     # p = PriorityQueue()
     # p.addItem([1,1], 4)
