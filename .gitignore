@@ -6,7 +6,7 @@ videos
 env
 
 # Ignore .pyc files
-# *.pyc
+*.pyc
 
 # Ignore video files, just in case something happens.
 *.mp4
