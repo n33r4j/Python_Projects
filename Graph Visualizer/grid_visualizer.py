@@ -27,8 +27,8 @@ SIM_PAUSED = False
 # GRID_HEIGHT = 12
 
 
-map_WIDTH, map_HEIGHT = 50, 50
-cell_SIZE = 16
+map_WIDTH, map_HEIGHT = 65, 65
+cell_SIZE = 10
 map = [[0 for i in range(map_WIDTH)] for j in range(map_HEIGHT)]
 dist_mat = [[0 for i in range(map_WIDTH)] for j in range(map_HEIGHT)]
 
@@ -60,7 +60,7 @@ def addRandomWalls(density):
 # addWall(1, 30, 1, 15)
 # addWall(1, 30, 27, 35)
 
-addRandomWalls(0.3)
+addRandomWalls(0.4)
 
 # Sets
 def TracePath(goal, map, dist_mat):
@@ -374,8 +374,8 @@ def main():
     # grid.setState(map)
 
     # Pathfinding Algorithms:
-    # Grassfire((6,4),(33,33), grid)
-    AStar([38,2],[36,45], grid) # start and goal needs to be lists.
+    Grassfire((18,2),(56,60), grid)
+    # AStar([18,2],[56,60], grid) # start and goal needs to be lists.
     
     pygame.quit()
     print("Simulation Terminated...")
