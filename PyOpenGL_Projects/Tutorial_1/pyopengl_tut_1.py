@@ -7,6 +7,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 SIM_RUN = True
+MAX_FPS = 60
 
 # Cube
 vertices = (
@@ -92,15 +93,23 @@ def Plane():
     glEnd()
 
 
+def DrawInOrder(quads):
+    pass
+
+
 def main():
     pygame.init()
     display = (800,600)
     pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
+    clock = pygame.time.Clock()
 
     global SIM_RUN
 
     move_X = 0.0
     move_Y = 0.0
+    move_Z = 0.0
+    rotate_Y = 0.0
+    angle_Y = 0.0
 
     # fov, aspect ratio, z_near, z_far (for clipping plane) 
     gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
@@ -116,20 +125,35 @@ def main():
                 break
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_a:
                     move_X = 0.1
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_d:
                     move_X = -0.1
                 if event.key == pygame.K_UP:
                     move_Y = -0.1
                 if event.key == pygame.K_DOWN:
                     move_Y = 0.1
+                if event.key == pygame.K_w:
+                    move_Z = 0.1
+                if event.key == pygame.K_s:
+                    move_Z = -0.1
+                if event.key == pygame.K_LEFT:
+                    rotate_Y = 0.1
+                    angle_Y = 1.0
+                if event.key == pygame.K_RIGHT:
+                    rotate_Y = -0.1
+                    angle_Y = 1.0
             
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_a or event.key == pygame.K_d:
                     move_X = 0.0
                 if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                     move_Y = 0.0
+                if event.key == pygame.K_w or event.key == pygame.K_s:
+                    move_Z = 0.0
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    rotate_Y = 0.0
+                    angle_Y = 0.0
             
             # scrolling zoom
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -138,22 +162,25 @@ def main():
                 if event.button == 5: # scroll-down
                     glTranslate(0,0,-0.3)
 
-        # glRotatef(1, 0, 1, 0)
-        glTranslate(move_X,move_Y,0)
+        glRotate(angle_Y, 0, rotate_Y, 0)
+        glTranslate(move_X,move_Y,move_Z)
+
         view_pos = glGetDoublev(GL_MODELVIEW_MATRIX)
         view_x = view_pos[3][0]
         view_y = view_pos[3][1]
         view_z = view_pos[3][2]
 
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-        if view_y <= 1:
+        
+        # temporary fix for drawing order
+        if view_y <= 2:
             Plane()
             Cube()
         else:
             Cube()
             Plane()
         pygame.display.flip() # display.update() does not work with an OPENGL display.
-        pygame.time.wait(10)
+        clock.tick(MAX_FPS)
 
     pygame.quit()
     quit()
