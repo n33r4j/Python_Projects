@@ -1,6 +1,5 @@
 # Graph class
 
-from os import X_OK
 import pygame
 from Node import Node
 from Colors import *
