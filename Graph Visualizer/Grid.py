@@ -16,6 +16,8 @@ class Grid:
         self.dist_matrix = [[0 for i in range(width)] for j in range(height)] # for storing distances from start
         # 0 -> empty(Black), -1 -> Wall(White), 1 -> Currently Active(Orange), 2 -> Explored(Dark Blue), 
         # 3 -> Found but to be visited(Yellow), 4 -> Start(Green), 5 -> Goal(Red), 6 -> Ideal Path(Light Blue)
+        # self.text = "100"
+        self.font = pygame.font.SysFont('Arial', 12, bold=True)
 
     def setStateMatrix(self, state_matrix):
         self.state_matrix = state_matrix
@@ -72,5 +74,16 @@ class Grid:
                 X = self.position[0] + (j*self.cell_size)+2
                 Y = self.position[1] + (i*self.cell_size)+2
                 pygame.draw.rect(window, cell_color, pygame.Rect(X,Y,self.cell_size-3,self.cell_size-3))
-
+        
+                cell_num_text = str(self.dist_matrix[i][j])
+                img = self.font.render(cell_num_text, True, WHITE)
+                h_spacing = 13
+                
+                if len(cell_num_text) == 1:
+                    h_spacing = 17
+                elif  len(cell_num_text) == 2:
+                    h_spacing = 15
+                else:
+                    h_spacing = 13
+                window.blit(img, ((j*self.cell_size)+h_spacing, (i*self.cell_size)+13))
     

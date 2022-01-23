@@ -5,6 +5,8 @@
 #
 # Notes:
 # - There's probably a better way to write the code for searching neighbouring cells. Maybe using a dict ?
+# - The A* implementation isn't correct. The way that the optimal path is found needs to be done by keeping
+#   track of the parent nodes instead of assigning numbers like the grassfire algorithm.
 # - 
 
 import pygame
@@ -27,19 +29,19 @@ SIM_PAUSED = False
 # GRID_HEIGHT = 12
 
 
-map_WIDTH, map_HEIGHT = 65, 65
-cell_SIZE = 10
+map_WIDTH, map_HEIGHT = 33, 33
+cell_SIZE = 20
 map = [[0 for i in range(map_WIDTH)] for j in range(map_HEIGHT)]
 dist_mat = [[0 for i in range(map_WIDTH)] for j in range(map_HEIGHT)]
 
 # Create Walls
 def addWall(axis, rank, start, end):
     if axis == 0:
-        for i in range(start, end):
-            map[rank][i] = -1
+        for i in range(start, min(end, map_WIDTH-1)):
+            map[min(rank, map_HEIGHT-1)][i] = -1
     elif axis == 1:
-        for i in range(start, end):
-            map[i][rank] = -1
+        for i in range(start, min(end, map_HEIGHT-1)):
+            map[i][min(rank, map_WIDTH-1)] = -1
 
 # Create Random Walls, density ~ 0.0 - 1.0
 def addRandomWalls(density):
@@ -53,14 +55,14 @@ def addRandomWalls(density):
 # addWall(0, 8, 1, 36)
 # addWall(0, 12, 0, 35)
 # addWall(0, 16, 1, 36)
-# addWall(0, 20, 0, 35)
-# addWall(0, 24, 1, 36)
+addWall(0, 25, 5, 24)
+addWall(0, 30, 1, 26)
 # addWall(0, 28, 0, 35)
 # addWall(0, 32, 1, 36)
-# addWall(1, 30, 1, 15)
+addWall(1, 20, 1, 30)
 # addWall(1, 30, 27, 35)
 
-addRandomWalls(0.4)
+addRandomWalls(0.0)
 
 # Sets
 def TracePath(goal, map, dist_mat):
@@ -156,6 +158,7 @@ def Grassfire(start, goal, grid):
                     # print(toVisit[0], goal)
                     if(toVisit[0] == goal):
                         # print("Goal found!")
+                        print(f"Shortest path to goal is {dist_mat[toVisit[0][0]][toVisit[0][1]]} units.")
                         map[goal[0]][goal[1]] = 5
                         goal_found = True
                         grid.setStateMatrix(TracePath(goal, map, dist_mat))
@@ -171,49 +174,58 @@ def Grassfire(start, goal, grid):
                     # print(curr_num, row, col, toVisit)
                     # UP
                     if row > 0 and map[row-1][col] in [0,5]:
-                        dist_mat[row-1][col] = dist_mat[row][col]+1
+                        if dist_mat[row-1][col] == 0 or dist_mat[row][col]+1 < dist_mat[row-1][col]:
+                            dist_mat[row-1][col] = dist_mat[row][col]+1
+                        
                         if not map[row-1][col] == 5:
                             map[row-1][col] = 3
                         toVisit.append((row-1,col))
                     # UP-RIGHT
                     if row > 0 and col < map_WIDTH-1 and map[row-1][col+1] in [0,5]:
-                        dist_mat[row-1][col+1] = dist_mat[row][col]+1
+                        if dist_mat[row-1][col+1] == 0 or dist_mat[row][col]+1 < dist_mat[row-1][col+1]:
+                            dist_mat[row-1][col+1] = dist_mat[row][col]+1
                         if not map[row-1][col+1] == 5:
                             map[row-1][col+1] = 3
                         toVisit.append((row-1,col+1))
                     # RIGHT
                     if col < map_WIDTH-1 and map[row][col+1] in [0,5]:
-                        dist_mat[row][col+1] = dist_mat[row][col]+1
+                        if dist_mat[row][col+1] == 0 or dist_mat[row][col]+1 < dist_mat[row][col+1]:
+                            dist_mat[row][col+1] = dist_mat[row][col]+1
                         if not map[row][col+1] == 5:
                             map[row][col+1] = 3
                         toVisit.append((row,col+1))
                     # DOWN-RIGHT
                     if row < map_HEIGHT-1 and col < map_WIDTH-1 and map[row+1][col+1] in [0,5]:
-                        dist_mat[row+1][col+1] = dist_mat[row][col]+1
+                        if dist_mat[row+1][col+1] == 0 or dist_mat[row][col]+1 < dist_mat[row+1][col+1]:
+                            dist_mat[row+1][col+1] = dist_mat[row][col]+1
                         if not map[row+1][col+1] == 5:
                             map[row+1][col+1] = 3
                         toVisit.append((row+1,col+1))
                     # DOWN
                     if row < map_HEIGHT-1 and map[row+1][col] in [0,5]:
-                        dist_mat[row+1][col] = dist_mat[row][col]+1
+                        if dist_mat[row+1][col] == 0 or dist_mat[row][col]+1 < dist_mat[row+1][col]:
+                            dist_mat[row+1][col] = dist_mat[row][col]+1
                         if not map[row+1][col] == 5:
                             map[row+1][col] = 3
                         toVisit.append((row+1,col))
                     # DOWN-LEFT
                     if row < map_HEIGHT-1 and col > 0 and map[row+1][col-1] in [0,5]:
-                        dist_mat[row+1][col-1] = dist_mat[row][col]+1
+                        if dist_mat[row+1][col-1] == 0 or dist_mat[row][col]+1 < dist_mat[row+1][col-1]:
+                            dist_mat[row+1][col-1] = dist_mat[row][col]+1
                         if not map[row+1][col-1] == 5:
                             map[row+1][col-1] = 3
                         toVisit.append((row+1,col-1))
                     # LEFT
                     if col > 0 and map[row][col-1] in [0,5]:
-                        dist_mat[row][col-1] = dist_mat[row][col]+1
+                        if dist_mat[row][col-1] == 0 or dist_mat[row][col]+1 < dist_mat[row][col-1]:
+                            dist_mat[row][col-1] = dist_mat[row][col]+1
                         if not map[row][col-1] == 5:
                             map[row][col-1] = 3
                         toVisit.append((row,col-1))
                     # UP-LEFT
                     if row > 0 and col > 0 and map[row-1][col-1] in [0,5]:
-                        dist_mat[row-1][col-1] = dist_mat[row][col]+1
+                        if dist_mat[row-1][col-1] == 0 or dist_mat[row][col]+1 < dist_mat[row-1][col-1]:
+                            dist_mat[row-1][col-1] = dist_mat[row][col]+1
                         if not map[row-1][col-1] == 5:
                             map[row-1][col-1] = 3
                         toVisit.append((row-1,col-1))
@@ -242,7 +254,7 @@ def AStar(start, goal, grid):
     
     clock = pygame.time.Clock()
     global SIM_RUN
-    timer = 50 # ms, for controlling update speed.
+    timer = 0 # ms, for controlling update speed.
     timer_start = 0
     goal_found = False
 
@@ -274,6 +286,8 @@ def AStar(start, goal, grid):
                     # print(curr_cell)
                     if( curr_cell == goal):
                         # print("Goal found!")
+                        # Print this on to the screen instead of just the console.
+                        print(f"Shortest path to goal is {dist_mat[curr_cell[0]][curr_cell[1]]} units.")                        
                         map[goal[0]][goal[1]] = 5
                         goal_found = True
                         grid.setStateMatrix(TracePath(goal, map, dist_mat))
@@ -374,8 +388,8 @@ def main():
     # grid.setState(map)
 
     # Pathfinding Algorithms:
-    Grassfire((18,2),(56,60), grid)
-    # AStar([18,2],[56,60], grid) # start and goal needs to be lists.
+    Grassfire((2,2),(26,30), grid)
+    # AStar([2,2],[26,30], grid) # start and goal needs to be lists.
     
     pygame.quit()
     print("Simulation Terminated...")
