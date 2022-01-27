@@ -10,6 +10,7 @@ class Ray:
         self.tag = "ray"
         self.x = x
         self.y = y
+        self.hit_dist = None
         self.angle = angle # degrees
         self.scale = 3.0
         self.direction = [math.cos(math.radians(self.angle)), math.sin(math.radians(self.angle))]
@@ -52,6 +53,10 @@ class Ray:
         if nearest_X and nearest_Y:
             pygame.draw.aaline(window, GREEN, [self.x, self.y], [nearest_X, nearest_Y])
             pygame.draw.circle(window, YELLOW, [nearest_X, nearest_Y], 2.0)
+            self.hit_dist = ((self.x - nearest_X)**2 + (self.y - nearest_Y)**2)**0.5 # the distance to the hit boundary
+            return self.hit_dist
+        else:
+            return
             
     def setPosition(self, pos):
         self.x = pos[0]

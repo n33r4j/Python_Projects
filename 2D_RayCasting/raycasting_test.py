@@ -22,6 +22,12 @@ def Draw(window, to_draw, boundaries):
             item.cast(window, boundaries)
     pygame.display.update()
 
+def PrintRayDistances(player):
+    for ray in player.getRays():
+        print(ray.hit_dist, end=" | ")
+    print()
+
+
 def main():
     pygame.init()
 
@@ -50,7 +56,8 @@ def main():
     # r7 = Ray(400, 300, 0.0)
     # r8 = Ray(400, 300, 0.0)
     
-    player = Player([400, 300], 20) # upto to 1000 eyes is okay
+    eyes = 8
+    player = Player([400, 300], eyes) # upto to 1000 eyes is okay
 
     to_draw = []
     to_draw.append(b1)
@@ -96,7 +103,9 @@ def main():
                 # r7.setAngle((r1.angle + -90.0) )
                 # r8.setAngle((r1.angle + -135.0) )
             
-            Draw(window, to_draw, boundaries)
+            PrintRayDistances(player)
+        
+        Draw(window, to_draw, boundaries)
 
     print("Terminating Simulation...")
     pygame.quit()
