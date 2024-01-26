@@ -1,4 +1,5 @@
 # Commandline Image Cropper
+# If you want to crop the same portion of multiple images.
 
 from PIL import Image
 from argparse import ArgumentParser
