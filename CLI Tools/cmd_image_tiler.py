@@ -33,7 +33,9 @@ if __name__ == "__main__":
         raise Exception("Tiling dimensions too small to include all images. Please increase the no. of rows or columns.")
     else:
         tile_W, tile_H = Image.open(tiles[0]).size
-        final_image = Image.new('RGBA', ((cols*(args.colSpace+tile_W) - args.colSpace), (rows*(args.rowSpace+tile_H) - args.rowSpace)))
+        rowSpace = int(args.rowSpace)
+        colSpace = int(args.colSpace)
+        final_image = Image.new('RGBA', ((cols*(colSpace+tile_W) - colSpace), (rows*(rowSpace+tile_H) - rowSpace)))
 
         paste_X = 0
         paste_Y = 0
@@ -44,12 +46,12 @@ if __name__ == "__main__":
             tile_img = Image.open(img_name)
             final_image.paste(tile_img, (paste_X, paste_Y))
             currCol += 1
-            paste_X += (args.rowSpace+tile_W)
+            paste_X += (colSpace+tile_W)
             if currCol >= cols:
                 currCol = 0
                 paste_X = 0
                 currRow += 1
-                paste_Y += (args.rowSpace+tile_H)
+                paste_Y += (rowSpace+tile_H)
 
         final_image.save("Tiled-Image"+".png")
 
