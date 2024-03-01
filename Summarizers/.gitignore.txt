@@ -1,2 +1,2 @@
-.env
-/video-summ-env
+*.env
+video-summ-env/
