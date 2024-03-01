@@ -1,0 +1,2 @@
+.env
+/video-summ-env
