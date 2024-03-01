@@ -4,6 +4,10 @@ videos
 
 # Ignore virtual env folders
 env
+*-env
+
+# Ignore environment variables like API keys
+.env
 
 # Ignore .pyc files
 *.pyc
