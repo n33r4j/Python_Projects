@@ -3,7 +3,7 @@
 ## Why?
 Sometimes, you just want to know if your code works the way you expect it to without actually assembling everything(bench testing or bread boarding?). You also don't have/don't want to damage/are too lazy to use real hardware.
 
-This project was conceived when I wanted to test code for an RPi project but didn't have any hardware with me. While mocking pins with `gpiozero` was helpful, I also wanted have a physical way to see what was happening.
+This project was conceived when I wanted to test code for an RPi project but didn't have any hardware with me. While mocking pins with `gpiozero` was helpful, I also wanted a more visual way to see what was happening.
 
 ## Goals
 
