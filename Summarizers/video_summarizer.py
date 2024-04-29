@@ -3,6 +3,7 @@
 # NOTES:
 # This only works for videos with a single narrator. For example TED talks.
 # For videos with multiple people speaking, try to convert the xml into a usable script. TODO
+# Also note that some videos on YouTube don't have captions.
 
 # dotenv reference (https://saurabh-kumar.com/python-dotenv/)
 
@@ -33,6 +34,9 @@ def getTranscriptAsText(link):
 	print("title: ", yt.title)
 	print("streams: ", len(yt.streams))
 	print("available captions: ", yt.captions)
+	if not yt.captions:
+		raise Exception("Captions are not available for this video. Exiting...")
+		
 
 	# print(yt.captions['a.en'].generate_srt_captions()) # See https://github.com/pytube/pytube/issues/1085 for fix.
 	captions_xml = yt.captions['a.en'].xml_captions
