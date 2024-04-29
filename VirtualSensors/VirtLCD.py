@@ -28,13 +28,13 @@ class VirtLCD():
 	
 	def update(self, screen):
 		pygame.draw.rect(screen, Colors.BLACK, (self.x, 
-							self.y, 
-							self.size[0], 
-							self.size[1]+(self.marginY*self.lines)))
+												self.y, 
+												self.size[0], 
+												self.size[1]+(self.marginY*self.lines)))
 		screen.blit(self.label, (self.x+(self.size[0]//2)-(self.label.get_rect().width//2), 
-					 self.y+(self.size[1]+20)-(self.label.get_rect().height//2)))
+					 			self.y+(self.size[1]+20)-(self.label.get_rect().height//2)))
 		
 		for i, line_data in enumerate(self.data):
 			line = self.font.render(line_data, 2, Colors.GREEN)
 			screen.blit(line, (self.x+self.marginX, 
-					   self.y+(self.line_h*i)+(self.marginY*(i+1))))
+					   		   self.y+(self.line_h*i)+(self.marginY*(i+1))))
