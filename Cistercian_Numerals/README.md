@@ -1,5 +1,5 @@
 # Cistercian Numeral Generator
-[What's that?](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.youtube.com/watch%3Fv%3D9p55Qgt7Ciw&ved=2ahUKEwjEoob_ge2FAxVE3TQHHf24BX8QtwJ6BAgLEAI&usg=AOvVaw06TKLrS5DxjOwGauiBdVES)
+[What's that?](https://www.youtube.com/watch?v=9p55Qgt7Ciw)
 
 <p float="left">
   <img src='https://github.com/n33r4j/Python_Projects/blob/main/Cistercian_Numerals/output/1234_cis.jpg' alt='1234' width='100'>
