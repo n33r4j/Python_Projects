@@ -31,10 +31,10 @@ class VirtPIR:
 	
 	def draw(self, screen):
 		screen.blit(self.label, (self.circle_center[0]-self.label.get_rect().width//2, 
-								self.circle_center[0]-self.label.get_rect().width//2))
+								 self.circle_center[0]-self.label.get_rect().width//2))
 		pygame.draw.circle(screen, Colors.BLACK, self.circle_center, self.circle_radius, 2)
 		screen.blit(self.timer_label, (self.circle_center[0]-20, 
-										self.circle_center[1]+self.circle_radius+10))
+					       			   self.circle_center[1]+self.circle_radius+10))
 		
 		if self.motion_detected:
 			pygame.draw.circle(screen, Colors.GREEN, self.circle_center, self.circle_radius-10)
