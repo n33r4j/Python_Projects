@@ -3,6 +3,10 @@ video_releases
 videos
 output
 
+# Exclude data folder except the test subfolder.
+data/*
+!/data/test
+
 # Ignore virtual env folders
 env
 *env
