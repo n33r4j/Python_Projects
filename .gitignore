@@ -1,6 +1,7 @@
 # Ignore video releases folder
 video_releases
 videos
+output
 
 # Ignore virtual env folders
 env
