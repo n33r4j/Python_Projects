@@ -20,17 +20,22 @@ MARGINS = (2*SCALE, 2*SCALE)
 # 20    | 4
 # 10    | 3
 
-def cistercian_stem(canvas, pos, scale):
+def cistercian_stem(canvas, pos, scale, level=1):
 	"""
 	zero
 	pos: center position of the numeral
 	scale: size
+	level: the depth of the stem (for extended version)
 	"""
-	s_x = pos[0]
-	s_y = pos[1]-(scale*1.5)
-	f_x = s_x
-	f_y = s_y+(scale*3.0)
-	canvas.line([(s_x, s_y), (f_x, f_y)], fill=COLOR, width=LINE_WIDTH, joint="curve")
+	# This if-else will be eliminated after testing.
+	if level == 1:
+		s_x = pos[0]
+		s_y = pos[1]-(scale*1.5)
+		f_x = s_x
+		f_y = s_y+(scale*3.0)
+		canvas.line([(s_x, s_y), (f_x, f_y)], fill=COLOR, width=LINE_WIDTH, joint="curve")
+	else:
+		pass
 
 def cistercian_one(canvas, ref, place, scale):
 	"""
@@ -105,6 +110,7 @@ cistercian = {
 def write_cistercian(canvas, num: int|str):
 	if isinstance(num, int):
 		num = str(num)
+	
 	if len(num) > 4:
 		raise Exception("Classical Cistercian can't represent numbers > 9999. Try the extended version.")
 	else:
@@ -118,6 +124,21 @@ def write_cistercian(canvas, num: int|str):
 				pos = top if i < 2 else bottom
 				cistercian[int(digit)](canvas, pos, PLACE[i], SCALE)
 
+def write_ext_cistercian(canvas, num: int|str):
+	MAX_LIMIT = 8 # Soft limit during testing
+	if isinstance(num, int):
+		num = str(num)
+	
+	if len(num) > MAX_LIMIT:
+		raise Exception(f"Can't represent numbers > {MAX_LIMIT*'9'} for now. Check back later.")
+	else:
+		# Calculate the no. of stems you need.
+		n_stems = len(num)//4
+		# Figure out stem tree
+		for i in range(n_stems):
+			cistercian_stem(canvas, (50,50), SCALE, level=i+1)
+		# Fill digits on each stem
+		pass
 
 def create_cistercian(num):
 	# Find canvas size
@@ -126,10 +147,17 @@ def create_cistercian(num):
 
 if __name__ == "__main__":
 	
-	for i in range(10000):
-		filename = f"output\\{i}_cis.jpg"
-		width, height = 100, 100
-		im = Image.new('RGB', (width, height), color="white")
-		canvas = ImageDraw.Draw(im)
-		write_cistercian(canvas, i)
-		im.save(filename)
+	width, height = 100, 100
+	im = Image.new('RGB', (width, height), color="white")
+	canvas = ImageDraw.Draw(im)
+	number = 99999999
+	write_cistercian(canvas, number)
+	im.show()
+	
+	# for i in range(10000):
+		# filename = f"output\\{i}_cis.jpg"
+		# width, height = 100, 100
+		# im = Image.new('RGB', (width, height), color="white")
+		# canvas = ImageDraw.Draw(im)
+		# write_cistercian(canvas, i)
+		# im.save(filename)
