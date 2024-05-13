@@ -23,8 +23,18 @@
 from tkinter import Tk, Label, PhotoImage, Button
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
-
+mock_data = [
+["2024/05/13, 10:10:00",  0],
+["2024/05/13, 13:00:25",  1],
+["2024/05/13, 14:55:33",  0],
+["2024/05/13, 17:11:10",  1],
+["2024/05/13, 21:30:12",  0],
+["2024/05/14, 01:13:54",  1],
+["2024/05/14, 05:23:03",  0],
+["2024/05/14, 10:43:43",  1]
+]
 # As long as you stick with YYYY/mm/dd, HH:MM:SS format, you can compare 
 # date strings.
 def get_timestamp(for_filename=False):
@@ -48,13 +58,34 @@ def make_piechart(hours, f_prefix, show=False):
     
     plt.pie(y, labels=p_labels)
     plt.title(f"{get_timestamp()}")
+    plt.xlabel('')
+    plt.ylabel('')
     plt.savefig(f_prefix+"_piechart.png")
     
     if show:
         plt.show()
+    print(f"Successfully made piechart.")
 
-# def make_graph():
-#    pass
+def make_graph(data, f_prefix, show=False):
+    x = [datetime.strptime(d[0], "%Y/%m/%d, %H:%M:%S") for d in data]
+    y = [d[1] for d in data]
+    plt.figure(figsize=(10, 5))
+    plt.step(x, y, where='post')
+    plt.title(f"{get_timestamp()}")
+    plt.xlabel('Time')
+    plt.ylabel('Activity')
+    plt.xticks(x, rotation=90, fontsize=8)
+    plt.yticks([0, 1], ['Idle', 'Work'])
+    
+    date_formatter = mdates.DateFormatter('%Y/%m/%d, %H:%M:%S')
+    plt.gca().xaxis.set_major_formatter(date_formatter)
+    
+    plt.tight_layout()
+    plt.savefig(f_prefix+"_timeline.png")
+   
+    if show:
+        plt.show()
+    print(f"Successfully made timeline graph.")
 
 def save_data(data):
     filename_prefix = f"data\\{get_timestamp(for_filename=True)}"
@@ -63,10 +94,10 @@ def save_data(data):
             data_file.write(f"{d[0]} {str(d[1])}\n")
         print(f"Successfully wrote data.")
         
-    h = calculate_hours(todays_data)
+    h = calculate_hours(data)
     # print(f"work: {str(timedelta(seconds=h[1]))} | leisure: {str(timedelta(seconds=h[0]))}")
     make_piechart(h, filename_prefix)
-    print(f"Successfully made piechart.")
+    make_graph(data, filename_prefix)
 
 win = Tk()
 w = win.winfo_screenwidth()
