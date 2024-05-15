@@ -20,7 +20,7 @@
 # - What exactly counts as work?
 
 
-from tkinter import Tk, Label, PhotoImage, Button
+from tkinter import Tk, Label, PhotoImage, Button, Frame, ttk
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -68,7 +68,11 @@ def make_piechart(hours, f_prefix, show=False):
 
 def make_graph(data, f_prefix, show=False):
     x = [datetime.strptime(d[0], "%Y/%m/%d, %H:%M:%S") for d in data]
+    x.append(datetime.now())
+    
     y = [d[1] for d in data]
+    y.append(y[-1])
+    
     plt.figure(figsize=(10, 5))
     plt.step(x, y, where='post')
     plt.title(f"{get_timestamp()}")
@@ -94,25 +98,31 @@ def save_data(data):
             data_file.write(f"{d[0]} {str(d[1])}\n")
         print(f"Successfully wrote data.")
         
-    h = calculate_hours(data)
-    # print(f"work: {str(timedelta(seconds=h[1]))} | leisure: {str(timedelta(seconds=h[0]))}")
-    make_piechart(h, filename_prefix)
+    if len(data) > 1:
+        h = calculate_hours(data)
+        # print(f"work: {str(timedelta(seconds=h[1]))} | leisure: {str(timedelta(seconds=h[0]))}")
+        make_piechart(h, filename_prefix)
+    
     make_graph(data, filename_prefix)
 
 win = Tk()
 w = win.winfo_screenwidth()
 h = win.winfo_screenheight()
+icon = PhotoImage(file="icon.png")
+win.wm_iconphoto(True, icon)
 
 win.title('Productivity Tracker')
 # Put it on bottom right of screen(0.8, 0.7)
-win.geometry(f"280x170+{int(w*0.8)}+{int(h*0.7)}")
-win.resizable(1, 1)
+win.geometry(f"280x270+{int(w*0.8)}+{int(h*0.55)}")
+win.resizable(0, 0)
 
 BG_COLOR = "#232f42"
+BG_COLOR2 = "#23ef42"
 FONT_COLOR = "#ebecf5"
 win.configure(background=BG_COLOR)
 
 is_on = True
+curr_activity = "Undefined"
 
 label = Label(win, 
               text="Idle/Leisure", 
@@ -122,24 +132,34 @@ label = Label(win,
 
 label.pack(pady=20)
 
-todays_data = [] # [timestamp, state] state->0(leisure), 1(work)
+todays_data = [] # [timestamp, state, activity_name] state->0(leisure), 1(work)
+activities = ["Undefined"]
 
 def button_mode():
     global is_on
+    global curr_activity
 
     if is_on:
-        on_.config(image=off)
-        label.config(text="Working", fg=FONT_COLOR)
-        is_on = False
-        # print("Starting work...")
+        # print("is_on ", curr_activity)
+        if curr_activity not in ["Undefined", "N.A."]:
+            on_.config(image=off)
+            label.config(text="Working", fg=FONT_COLOR)
+            is_on = False
+            # print("Starting work...")
+        else:
+            print("Please choose or create activity >_<")
     else:
         on_.config(image=on)
         label.config(text="Idle/Leisure", fg=FONT_COLOR)
         is_on = True
+        activity_combo.current(0) # Reset to undefined
+        curr_activity = "Undefined"
         # print("Pausing work...")
 
      # is_on will be flipped!
-    todays_data.append([get_timestamp(), (0 if is_on else 1)])
+    todays_data.append([get_timestamp(), 
+                        (0 if is_on else 1), 
+                        curr_activity])
 
 
 # delay = 1000 # 1 sec
@@ -147,9 +167,37 @@ def button_mode():
 # def check_end_of_day():
     # win.after(delay, check_end_of_day)
 
+def activity_selected(event):
+    global curr_activity
+    curr_activity = activity_combo.get()
+    print(f"{curr_activity} selected")
+
+def activity_added(event):
+    global curr_activity
+    print(activities)
+    curr_activity = activity_combo.get()
+    if curr_activity and curr_activity not in activities:
+        activities.append(curr_activity)
+        activity_combo.configure(values=activities)
+        print(f"c:{curr_activity}, ", activity_combo['values'])
+
+def set_combo_state(s):
+    if s == 0:
+        activity_combo.configure(state="readonly")
+    elif s == 1:
+        activity_combo.configure(state="normal")
+
+def save_activities(activities):
+    pass
+
+def load_activities(activities):
+    pass
+
 
 on = PhotoImage(file="toggle_green.png")
 off = PhotoImage(file="toggle_red.png")
+plus = PhotoImage(file="plus.png")
+minus = PhotoImage(file="minus.png")
 
 on_ = Button(win, 
              image=on, 
@@ -160,10 +208,45 @@ on_ = Button(win,
 
 on_.pack(pady=0)
 
-todays_data.append([get_timestamp(), 0]) # Starting off with leisure
+activity_combo = ttk.Combobox(win, values=activities)
+activity_combo.pack(pady=10)
+activity_combo.bind("<<ComboboxSelected>>", activity_selected)
+activity_combo.bind("<Return>", activity_added)
+
+buttons = Frame(win, bg=BG_COLOR)
+buttons.pack(pady=10)
+
+plus_ = Button(buttons, 
+               image=plus, 
+               bg=BG_COLOR, 
+               bd=0, 
+               activebackground=BG_COLOR, 
+               command=button_mode)
+plus_.pack(padx=10, side='left')
+
+minus_ = Button(buttons, 
+                image=minus, 
+                bg=BG_COLOR, 
+                bd=0, 
+                activebackground=BG_COLOR, 
+                command=button_mode)
+minus_.pack(padx=10, side="right")
+
+clear_ = Button(buttons,
+                text="Clear",
+                width=8,
+                height=2,
+                bg=BG_COLOR2, 
+                bd=0, 
+                activebackground=BG_COLOR2, 
+                command=set_combo_state)
+clear_.pack()
+
+activity_combo.current(0)
+todays_data.append([get_timestamp(), 0, curr_activity]) # Starting off with leisure
 # win.after(delay, check_end_of_day)
 win.mainloop()
 print("Exiting...")
 
 # print(todays_data)
-save_data(todays_data)
+# save_data(todays_data)
