@@ -108,7 +108,7 @@ def save_data(data):
 win = Tk()
 w = win.winfo_screenwidth()
 h = win.winfo_screenheight()
-icon = PhotoImage(file="icon.png")
+icon = PhotoImage(file="assets\\icon.png")
 win.wm_iconphoto(True, icon)
 
 win.title('Productivity Tracker')
@@ -179,13 +179,30 @@ def activity_added(event):
     if curr_activity and curr_activity not in activities:
         activities.append(curr_activity)
         activity_combo.configure(values=activities)
-        print(f"c:{curr_activity}, ", activity_combo['values'])
+        print(f"curr:{curr_activity}, ", activity_combo['values'])
 
 def set_combo_state(s):
     if s == 0:
         activity_combo.configure(state="readonly")
     elif s == 1:
         activity_combo.configure(state="normal")
+
+def remove_current_activity():
+    global activities
+    a = activity_combo.get()
+    if a and a not in ["Undefined", "N.A."]:
+        activities = list(filter((a).__ne__, activities))
+        activity_combo.configure(values=activities)
+        activity_combo.current(0)
+        print(f"removed {a}")
+        print(activity_combo['values'])
+
+def clear_activities():
+    global activities
+    activities = ["Undefined"]
+    activity_combo.configure(values=activities)
+    activity_combo.current(0)
+    print(activity_combo['values'])
 
 def save_activities(activities):
     pass
@@ -194,10 +211,10 @@ def load_activities(activities):
     pass
 
 
-on = PhotoImage(file="toggle_green.png")
-off = PhotoImage(file="toggle_red.png")
-plus = PhotoImage(file="plus.png")
-minus = PhotoImage(file="minus.png")
+on = PhotoImage(file="assets\\toggle_green.png")
+off = PhotoImage(file="assets\\toggle_red.png")
+plus = PhotoImage(file="assets\\plus.png")
+minus = PhotoImage(file="assets\\minus.png")
 
 on_ = Button(win, 
              image=on, 
@@ -229,7 +246,7 @@ minus_ = Button(buttons,
                 bg=BG_COLOR, 
                 bd=0, 
                 activebackground=BG_COLOR, 
-                command=button_mode)
+                command=remove_current_activity)
 minus_.pack(padx=10, side="right")
 
 clear_ = Button(buttons,
@@ -239,7 +256,7 @@ clear_ = Button(buttons,
                 bg=BG_COLOR2, 
                 bd=0, 
                 activebackground=BG_COLOR2, 
-                command=set_combo_state)
+                command=clear_activities)
 clear_.pack()
 
 activity_combo.current(0)
