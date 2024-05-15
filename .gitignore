@@ -26,3 +26,4 @@ env
 
 # Ignore specific files (for example)
 sensitive_info.txt
+activities.txt
