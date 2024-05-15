@@ -25,16 +25,7 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-mock_data = [
-["2024/05/13, 10:10:00",  0],
-["2024/05/13, 13:00:25",  1],
-["2024/05/13, 14:55:33",  0],
-["2024/05/13, 17:11:10",  1],
-["2024/05/13, 21:30:12",  0],
-["2024/05/14, 01:13:54",  1],
-["2024/05/14, 05:23:03",  0],
-["2024/05/14, 10:43:43",  1]
-]
+
 # As long as you stick with YYYY/mm/dd, HH:MM:SS format, you can compare 
 # date strings.
 def get_timestamp(for_filename=False):
@@ -180,29 +171,38 @@ def activity_added(event):
         activities.append(curr_activity)
         activity_combo.configure(values=activities)
         print(f"curr:{curr_activity}, ", activity_combo['values'])
+        set_combo_state(0)
 
 def set_combo_state(s):
     if s == 0:
         activity_combo.configure(state="readonly")
     elif s == 1:
         activity_combo.configure(state="normal")
+    else:
+        pass
 
 def remove_current_activity():
     global activities
+    global curr_activity
+    
     a = activity_combo.get()
     if a and a not in ["Undefined", "N.A."]:
-        activities = list(filter((a).__ne__, activities))
+        activities = list(filter((a).__ne__, activities)) # Not sure why I'm doing this since there will just be one occurrance anyway
         activity_combo.configure(values=activities)
         activity_combo.current(0)
+        curr_activity = "Undefined" # Don't do this. Make a variable and use that dum-dum
         print(f"removed {a}")
         print(activity_combo['values'])
 
 def clear_activities():
-    global activities
-    activities = ["Undefined"]
-    activity_combo.configure(values=activities)
-    activity_combo.current(0)
-    print(activity_combo['values'])
+    if is_on: # currently in Idle mode
+        global activities
+        activities = ["Undefined"]
+        activity_combo.configure(values=activities)
+        activity_combo.current(0)
+        print(activity_combo['values'])
+    else:
+        print("Can't clear activities while in working mode!")
 
 def save_activities(activities):
     pass
@@ -225,7 +225,7 @@ on_ = Button(win,
 
 on_.pack(pady=0)
 
-activity_combo = ttk.Combobox(win, values=activities)
+activity_combo = ttk.Combobox(win, values=activities, state='readonly')
 activity_combo.pack(pady=10)
 activity_combo.bind("<<ComboboxSelected>>", activity_selected)
 activity_combo.bind("<Return>", activity_added)
@@ -238,8 +238,8 @@ plus_ = Button(buttons,
                bg=BG_COLOR, 
                bd=0, 
                activebackground=BG_COLOR, 
-               command=button_mode)
-plus_.pack(padx=10, side='left')
+               command= lambda: set_combo_state(1))
+plus_.pack(padx=14, side='left')
 
 minus_ = Button(buttons, 
                 image=minus, 
@@ -247,11 +247,11 @@ minus_ = Button(buttons,
                 bd=0, 
                 activebackground=BG_COLOR, 
                 command=remove_current_activity)
-minus_.pack(padx=10, side="right")
+minus_.pack(padx=14, side="right")
 
 clear_ = Button(buttons,
                 text="Clear",
-                width=8,
+                width=6,
                 height=2,
                 bg=BG_COLOR2, 
                 bd=0, 
