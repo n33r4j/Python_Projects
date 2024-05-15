@@ -18,6 +18,9 @@
 # - How to catch getting side-tracked during work and vice-versa?.
 # - How to catch inactive/idle mode.(i.e. when you forget to hit the button)
 # - What exactly counts as work?
+# - You may want to add new activities while still working on something else. This is
+#   currently not supported(for simplicity).
+# - 
 
 
 from tkinter import Tk, Label, PhotoImage, Button, Frame, ttk
@@ -136,6 +139,7 @@ def button_mode():
             on_.config(image=off)
             label.config(text="Working", fg=FONT_COLOR)
             is_on = False
+            activity_combo.configure(state="disabled")
             # print("Starting work...")
         else:
             print("Please choose or create activity >_<")
@@ -144,6 +148,7 @@ def button_mode():
         label.config(text="Idle/Leisure", fg=FONT_COLOR)
         is_on = True
         activity_combo.current(0) # Reset to undefined
+        activity_combo.configure(state="readonly")
         curr_activity = "Undefined"
         # print("Pausing work...")
 
@@ -151,12 +156,15 @@ def button_mode():
     todays_data.append([get_timestamp(), 
                         (0 if is_on else 1), 
                         curr_activity])
+    if curr_activity != todays_data[-2][2]:
+        print(f"Started activity: {curr_activity}")
 
 
-# delay = 1000 # 1 sec
+delay = 5*60*1000 # 5 minutes
 
-# def check_end_of_day():
-    # win.after(delay, check_end_of_day)
+def autosave():
+    save_activities(activities)
+    win.after(delay, autosave)
 
 def activity_selected(event):
     global curr_activity
@@ -174,18 +182,23 @@ def activity_added(event):
         set_combo_state(0)
 
 def set_combo_state(s):
-    if s == 0:
-        activity_combo.configure(state="readonly")
-    elif s == 1:
-        activity_combo.configure(state="normal")
+    if is_on: # in Idle mode
+        if s == 0:
+            activity_combo.configure(state="readonly")
+        elif s == 1:
+            activity_combo.configure(state="normal")
     else:
-        pass
+        print("Can't add new activities in work mode.")
 
 def remove_current_activity():
     global activities
     global curr_activity
     
     a = activity_combo.get()
+    if not is_on and a == curr_activity:
+        print("Can't remove activity you're currently working on!")
+        return
+    
     if a and a not in ["Undefined", "N.A."]:
         activities = list(filter((a).__ne__, activities)) # Not sure why I'm doing this since there will just be one occurrance anyway
         activity_combo.configure(values=activities)
@@ -197,19 +210,36 @@ def remove_current_activity():
 def clear_activities():
     if is_on: # currently in Idle mode
         global activities
+        global curr_activity
+        
         activities = ["Undefined"]
         activity_combo.configure(values=activities)
         activity_combo.current(0)
+        curr_activity = "Undefined"
         print(activity_combo['values'])
     else:
         print("Can't clear activities while in working mode!")
 
-def save_activities(activities):
+def save_activities(a):
+    # Currently, this overwrites every time, which is not ideal.
+    # Instead, we need to check if there's already a file and combine this with that.
+    # If there isn't already a file, then just write.
+    # Actually, this is only a problem if we save without ever calling load() during
+    # a session, which shouldn't really happen.
+    activities_list = sorted(list(filter(("Undefined").__ne__, a)))
+    if activities_list:
+        with open("activities.txt", 'w') as f:
+            for activity in activities_list:
+                f.write(f"{activity}\n")
+        print("Activities from current session saved..")
+
+def load_activities():
+    # Check for existing file
+    # Load list into python list
+    # Return the list
     pass
 
-def load_activities(activities):
-    pass
-
+# activities += load_activities()
 
 on = PhotoImage(file="assets\\toggle_green.png")
 off = PhotoImage(file="assets\\toggle_red.png")
@@ -261,9 +291,10 @@ clear_.pack()
 
 activity_combo.current(0)
 todays_data.append([get_timestamp(), 0, curr_activity]) # Starting off with leisure
-# win.after(delay, check_end_of_day)
+win.after(delay, autosave)
 win.mainloop()
 print("Exiting...")
 
 # print(todays_data)
 # save_data(todays_data)
+save_activities(activities)
