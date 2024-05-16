@@ -27,6 +27,7 @@ from tkinter import Tk, Label, PhotoImage, Button, Frame, ttk
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import os
 
 
 # As long as you stick with YYYY/mm/dd, HH:MM:SS format, you can compare 
@@ -161,6 +162,7 @@ def button_mode():
 
 
 delay = 5*60*1000 # 5 minutes
+SESSION_LOAD_ATTEMPTED = False
 
 def autosave():
     save_activities(activities)
@@ -220,31 +222,45 @@ def clear_activities():
     else:
         print("Can't clear activities while in working mode!")
 
+def load_activities():
+    global SESSION_LOAD_ATTEMPTED
+    # Check for existing file
+    session_filename = "activities.txt"
+    act_list = []
+    if os.path.isfile(session_filename):
+        # Load list into python list
+        with open(session_filename) as f:
+            for line in f.readlines():
+                act_list.append(line.rstrip())
+        
+    SESSION_LOAD_ATTEMPTED = True
+    # Return the list
+    return act_list
+
 def save_activities(a):
     # Currently, this overwrites every time, which is not ideal.
     # Instead, we need to check if there's already a file and combine this with that.
     # If there isn't already a file, then just write.
     # Actually, this is only a problem if we save without ever calling load() during
     # a session, which shouldn't really happen.
-    activities_list = sorted(list(filter(("Undefined").__ne__, a)))
-    if activities_list:
-        with open("activities.txt", 'w') as f:
-            for activity in activities_list:
-                f.write(f"{activity}\n")
-        print("Activities from current session saved..")
+    if SESSION_LOAD_ATTEMPTED:
+        activities_list = sorted(list(filter(("Undefined").__ne__, a)))
+        if activities_list:
+            with open("activities.txt", 'w') as f:
+                for activity in activities_list:
+                    f.write(f"{activity}\n")
+            print("Activities from current session saved..")
+    else:
+        print("There may be activities saved from a previous session(load() wasn't called). Aborting...")
 
-def load_activities():
-    # Check for existing file
-    # Load list into python list
-    # Return the list
-    pass
 
-# activities += load_activities()
 
-on = PhotoImage(file="assets\\toggle_green.png")
-off = PhotoImage(file="assets\\toggle_red.png")
-plus = PhotoImage(file="assets\\plus.png")
-minus = PhotoImage(file="assets\\minus.png")
+activities += load_activities()
+
+on = PhotoImage(file=os.path.join("assets", "toggle_green.png"))
+off = PhotoImage(file=os.path.join("assets", "toggle_red.png"))
+plus = PhotoImage(file=os.path.join("assets", "plus.png"))
+minus = PhotoImage(file=os.path.join("assets", "minus.png"))
 
 on_ = Button(win, 
              image=on, 
