@@ -63,7 +63,11 @@ def make_piechart(hours, f_prefix, show=False):
 
 def make_graph(data, f_prefix, show=False):
     x = [datetime.strptime(d[0], "%Y/%m/%d, %H:%M:%S") for d in data]
-    x.append(datetime.now())
+    now = datetime.now()
+    x.append(now)
+    
+    x_anot = [f"{d[0]}\n{d[2]}" for d in data]
+    x_anot.append(f"{now}\n{data[-1][2]}")
     
     y = [d[1] for d in data]
     y.append(y[-1])
@@ -73,11 +77,11 @@ def make_graph(data, f_prefix, show=False):
     plt.title(f"{get_timestamp()}")
     plt.xlabel('Time')
     plt.ylabel('Activity')
-    plt.xticks(x, rotation=90, fontsize=8)
+    plt.xticks(x, labels=x_anot, rotation=90, fontsize=8)
     plt.yticks([0, 1], ['Idle', 'Work'])
     
-    date_formatter = mdates.DateFormatter('%Y/%m/%d, %H:%M:%S')
-    plt.gca().xaxis.set_major_formatter(date_formatter)
+    #date_formatter = mdates.DateFormatter('%Y/%m/%d, %H:%M:%S')
+    #plt.gca().xaxis.set_major_formatter(date_formatter)
     
     plt.tight_layout()
     plt.savefig(f_prefix+"_timeline.png")
@@ -90,7 +94,7 @@ def save_data(data):
     filename_prefix = f"data\\{get_timestamp(for_filename=True)}"
     with open(filename_prefix+"_data.txt", 'a') as data_file:
         for d in data:
-            data_file.write(f"{d[0]} {str(d[1])}\n")
+            data_file.write(f"{d[0]} {str(d[1])} {d[2]}\n")
         print(f"Successfully wrote data.")
         
     if len(data) > 1:
@@ -154,12 +158,12 @@ def button_mode():
         curr_activity = "Undefined"
         # print("Pausing work...")
 
-     # is_on will be flipped!
-    todays_data.append([get_timestamp(), 
-                        (0 if is_on else 1), 
-                        curr_activity])
-    if curr_activity != todays_data[-2][2]:
+    if curr_activity != todays_data[-1][2]:
         print(f"Started activity: {curr_activity}")
+         # is_on will be flipped!
+        todays_data.append([get_timestamp(), 
+                            (0 if is_on else 1), 
+                            curr_activity])
 
 
 delay = 5*60*1000 # 5 minutes
@@ -270,7 +274,7 @@ def save_activities(a):
                 f.write(f"{activity}\n")
         print("Activities from current session saved..")
     else:
-        print("No activities found. Skipped saving.")
+        print("No activities found. Saving the session will clear existing data. Skipping for now.")
 
 
 
@@ -332,5 +336,5 @@ win.mainloop()
 print("Exiting...")
 
 # print(todays_data)
-# save_data(todays_data)
+save_data(todays_data)
 save_activities(activities)
