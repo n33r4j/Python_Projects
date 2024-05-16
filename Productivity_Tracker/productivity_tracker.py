@@ -129,6 +129,7 @@ label.pack(pady=20)
 
 todays_data = [] # [timestamp, state, activity_name] state->0(leisure), 1(work)
 activities = ["Undefined"]
+to_be_removed = []
 
 def button_mode():
     global is_on
@@ -162,7 +163,6 @@ def button_mode():
 
 
 delay = 5*60*1000 # 5 minutes
-SESSION_LOAD_ATTEMPTED = False
 
 def autosave():
     save_activities(activities)
@@ -202,10 +202,13 @@ def remove_current_activity():
         return
     
     if a and a not in ["Undefined", "N.A."]:
+        # Remove all occurrances
         activities = list(filter((a).__ne__, activities)) # Not sure why I'm doing this since there will just be one occurrance anyway
         activity_combo.configure(values=activities)
         activity_combo.current(0)
         curr_activity = "Undefined" # Don't do this. Make a variable and use that dum-dum
+        if a not in to_be_removed:
+            to_be_removed.append(a)
         print(f"removed {a}")
         print(activity_combo['values'])
 
@@ -213,6 +216,10 @@ def clear_activities():
     if is_on: # currently in Idle mode
         global activities
         global curr_activity
+        
+        for a in activities:
+            if a not in to_be_removed and a not in ["Undefined", "N.A."]:
+                to_be_removed.append(a)
         
         activities = ["Undefined"]
         activity_combo.configure(values=activities)
@@ -222,36 +229,49 @@ def clear_activities():
     else:
         print("Can't clear activities while in working mode!")
 
+SESSION_FILENAME = "activities.txt"
+
+def check_for_session():
+    return os.path.isfile(SESSION_FILENAME)
+
 def load_activities():
-    global SESSION_LOAD_ATTEMPTED
     # Check for existing file
-    session_filename = "activities.txt"
     act_list = []
-    if os.path.isfile(session_filename):
+    if check_for_session:
         # Load list into python list
-        with open(session_filename) as f:
+        with open(SESSION_FILENAME) as f:
             for line in f.readlines():
                 act_list.append(line.rstrip())
-        
-    SESSION_LOAD_ATTEMPTED = True
+
     # Return the list
     return act_list
 
 def save_activities(a):
-    # Currently, this overwrites every time, which is not ideal.
-    # Instead, we need to check if there's already a file and combine this with that.
-    # If there isn't already a file, then just write.
-    # Actually, this is only a problem if we save without ever calling load() during
-    # a session, which shouldn't really happen.
-    if SESSION_LOAD_ATTEMPTED:
-        activities_list = sorted(list(filter(("Undefined").__ne__, a)))
-        if activities_list:
-            with open("activities.txt", 'w') as f:
-                for activity in activities_list:
-                    f.write(f"{activity}\n")
-            print("Activities from current session saved..")
+    global to_be_removed
+    
+    activities_list = list(filter(("Undefined").__ne__, a))
+
+    if activities_list:
+        # Check if there's already a file
+        if check_for_session:
+            prev_saved_list = load_activities()
+            
+            if to_be_removed:
+                prev_saved_list = list(set(prev_saved_list) - set(to_be_removed))
+                to_be_removed = []
+
+            # Combine it with current one.
+            activities_list = list(set(prev_saved_list + activities_list))
+
+        sorted_activities_list = sorted(activities_list)
+
+        with open("activities.txt", 'w') as f:
+            for activity in sorted_activities_list:
+                f.write(f"{activity}\n")
+        print("Activities from current session saved..")
     else:
-        print("There may be activities saved from a previous session(load() wasn't called). Aborting...")
+        print("No activities found. Skipped saving.")
+
 
 
 
